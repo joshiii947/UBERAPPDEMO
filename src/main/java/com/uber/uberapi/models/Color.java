@@ -14,12 +14,10 @@ import javax.persistence.Table;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name="role")
-public class Role extends Auditable{
-    @Column(unique = true,nullable = false)
+@Table(name="color")
+public class Color extends Auditable{
+    @Column(unique=true,nullable = false)
     private String name;
-    private String description;
-
 
 
 
