@@ -10,6 +10,7 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Objects;
 
 @MappedSuperclass
 @Getter
@@ -29,24 +30,20 @@ public abstract class Auditable implements Serializable {
     @LastModifiedDate
     private Date updatedAt;
 
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Auditable auditable = (Auditable) o;
+        if(id==null && auditable.id==null){
+            return false;
+        }
+        return id.equals(auditable.id);
+    }
+
     @Override
     public int hashCode() {
         return id==null?0:id.hashCode();
     }
-
-    @Override
-    public boolean equals(Object obj) {
-        if(this.id==obj) return true;
-        if(!this.getClass().equals(obj.getClass())) return false;
-        if(obj instanceof Auditable){
-            Auditable auditableObj=(Auditable) obj;
-            if(id==null && obj==null) return true;
-            if(id==null || obj==null) return false;
-            return id==((Auditable)obj).id;
-        }
-        else{
-            return super.equals(id);
-        }
-    }
-
 }
