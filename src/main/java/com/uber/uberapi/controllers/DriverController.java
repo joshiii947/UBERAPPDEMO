@@ -37,12 +37,14 @@ public class DriverController {
     public void changeAvailablity(@RequestParam(name="driverId") Long driverId, @RequestBody Boolean available){
 
         Driver driver=getDriverFromId(driverId);
-
-        if(driver.getApprovalStatus().equals(DriverApprovalStatus.APPROVED)){
-            throw new UnapprovedDriverException("Driver approval pending or denied " +driverId);
-        }
         driver.setIsAvailable(available);
+        driverRepository.save(driver);
 
+    }
+
+
+    public void acceptBooking(@RequestParam(name="driverId") Long driverId,@RequestParam(name="bookingId") Long bookingId){
+        
     }
 
 }
