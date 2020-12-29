@@ -14,10 +14,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name="driver",indexes = {
-        @Index(columnList = "account_id",unique = true),
-        @Index(columnList = "car_id",unique = true),
-})
+@Table(name="driver")
 public class Driver extends Auditable{
 
     @OneToOne

@@ -15,7 +15,10 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name="booking")
+@Table(name="booking",indexes = {
+        @Index(columnList = "passenger_id"),
+        @Index(columnList = "driver_id")
+})
 public class Booking extends Auditable {
     @ManyToOne
     private Passenger passenger;
