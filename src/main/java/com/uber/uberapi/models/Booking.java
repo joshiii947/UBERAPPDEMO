@@ -1,5 +1,8 @@
 package com.uber.uberapi.models;
 
+import com.uber.uberapi.exceptions.InvalidActionForBookingStateException;
+import com.uber.uberapi.exceptions.InvalidBookingException;
+import com.uber.uberapi.exceptions.InvalidOTPException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,6 +12,8 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import static com.uber.uberapi.models.constants.RIDE_START_OTP_EXPIRY_MINUTES;
 
 @Entity
 @Getter
@@ -32,7 +37,7 @@ public class Booking extends Auditable {
     private BookingStatus bookingStatus;
 
     @OneToOne
-    private Review reviewByUser;
+    private Review reviewByPassenger;
 
     @OneToOne
     private Review reviewByDriver;
@@ -54,4 +59,22 @@ public class Booking extends Auditable {
     @OneToOne
     private OTP rideStartOTP;
 
+    public void startRide(OTP otp) {
+
+        if(bookingStatus.equals(BookingStatus.CAB_ARRIVED)){
+            throw new InvalidActionForBookingStateException("Cannot start the ride before the driver has reached the pickup");
+        }
+        if(!rideStartOTP.validateEnteredOTP(otp,RIDE_START_OTP_EXPIRY_MINUTES))
+            throw new InvalidOTPException();
+
+        bookingStatus=bookingStatus.IN_RIDE;
+    }
+
+    public void endRide() {
+        if(bookingStatus.equals(BookingStatus.CAB_ARRIVED)){
+            throw new InvalidActionForBookingStateException("THE RIDE HAS NOT STARTED YET");
+        }
+
+        bookingStatus=BookingStatus.COMPLETED;
+    }
 }

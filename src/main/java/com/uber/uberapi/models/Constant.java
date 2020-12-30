@@ -13,13 +13,14 @@ import javax.persistence.Table;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name="review")
-public class Review extends Auditable{
+@Table(name="constant")
+public class Constant extends Auditable{
+    private String name;
+    private String value;
 
-    private Integer ratingOutOfFive;
-    private String note;
-
-
+    public Long getAsLong(){
+        return Long.parseLong(value);
+    }
 
 
 }

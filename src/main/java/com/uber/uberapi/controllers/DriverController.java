@@ -2,10 +2,12 @@ package com.uber.uberapi.controllers;
 
 import com.uber.uberapi.exceptions.InvalidBookingException;
 import com.uber.uberapi.exceptions.InvalidDriverException;
-import com.uber.uberapi.models.Booking;
-import com.uber.uberapi.models.Driver;
+import com.uber.uberapi.models.*;
 import com.uber.uberapi.repositories.BookingRepository;
 import com.uber.uberapi.repositories.DriverRepository;
+import com.uber.uberapi.repositories.ReviewRepository;
+import com.uber.uberapi.services.BookingService;
+import com.uber.uberapi.services.DriverMatchingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,6 +23,15 @@ public class DriverController {
 
     @Autowired
     BookingRepository bookingRepository;
+
+//    @Autowired
+//    DriverMatchingService driverMatchingService;
+
+    @Autowired
+    ReviewRepository reviewRepository;
+
+    @Autowired
+    BookingService bookingService;
 
     public Driver getDriverFromId(Long driverId){
         Optional<Driver> driver=driverRepository.findById(driverId);
@@ -74,17 +85,69 @@ public class DriverController {
                               @RequestParam(name="bookingId") Long bookingId){
         Driver driver=getDriverFromId(driverId);
         Booking booking=getDriverBookingFromId(bookingId,driver);
-
-
+        bookingService.acceptBooking(driver,booking);
     }
 
     @DeleteMapping("{driverId}/bookings/{bookingId}")
     public void cancelBooking(@RequestParam(name="driverId") Long driverId,
                               @RequestParam(name="bookingId") Long bookingId){
+        Driver driver=getDriverFromId(driverId);
+        Booking booking=getDriverBookingFromId(bookingId,driver);
+        bookingService.cancelByDriver(driver,booking);
+        }
 
+    // rate the booking
+    // start the ride
+    // end the ride
 
+    @PatchMapping("{driverId}/bookings/{bookingId}")
+    public void startRide(@RequestParam(name="driverId") Long driverId,
+                          @RequestParam(name="bookingId") Long bookingId,
+                          @RequestBody OTP otp){
+        Driver driver=getDriverFromId(driverId);
+        Booking booking=getDriverBookingFromId(bookingId,driver);
+        // confirm the OTP
+        // the ride is currently in the correct state
+        booking.startRide(otp);
+        bookingRepository.save(booking);
     }
+
+    @PatchMapping("{driverId}/bookings/{bookingId}/end")
+    public void endRide(@RequestParam(name="driverId") Long driverId,
+                          @RequestParam(name="bookingId") Long bookingId){
+        Driver driver=getDriverFromId(driverId);
+        Booking booking=getDriverBookingFromId(bookingId,driver);
+        // confirm the OTP
+        // the ride is currently in the correct state
+        booking.endRide();
+        bookingRepository.save(booking);
+    }
+
+    @PatchMapping("{driverId}/bookings/{bookingId}/rate")
+    public void rateRide(@RequestParam(name="driverId") Long driverId,
+                         @RequestParam(name="bookingId") Long bookingId,
+                         @RequestBody Review data){
+        // get json data in the body
+//        reviewRepository.save(data);
+
+        Driver driver=getDriverFromId(driverId);
+        Booking booking=getDriverBookingFromId(bookingId,driver);
+        // confirm the OTP
+        // the ride is currently in the correct state
+        Review review=Review.builder()
+                .note(data.getNote())
+                .ratingOutOfFive(data.getRatingOutOfFive())
+                .build();
+        booking.setReviewByDriver(review);
+        reviewRepository.save(review);
+    }
+    
 
 
 
 }
+
+// Controllers -> models/services
+// Services -> other services / other controllers / models
+// models(DAO) -> DB
+// repositories(DAL) -> manage the models
