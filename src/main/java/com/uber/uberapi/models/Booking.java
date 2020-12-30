@@ -3,10 +3,7 @@ package com.uber.uberapi.models;
 import com.uber.uberapi.exceptions.InvalidActionForBookingStateException;
 import com.uber.uberapi.exceptions.InvalidBookingException;
 import com.uber.uberapi.exceptions.InvalidOTPException;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -20,6 +17,7 @@ import static com.uber.uberapi.models.constants.RIDE_START_OTP_EXPIRY_MINUTES;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Table(name="booking",indexes = {
         @Index(columnList = "passenger_id"),
         @Index(columnList = "driver_id")
@@ -44,9 +42,20 @@ public class Booking extends Auditable {
 
     @OneToOne
     private PaymentReceipt paymentReceipt;
-
+    
     @OneToMany
+    @JoinTable(
+            name="booking_route",
+            joinColumns = @JoinColumn(name = "booking_id"),
+            inverseJoinColumns = @JoinColumn(name = "exact_location_id"),
+            indexes = {@Index(columnList = "booking_id")}
+    )
+    @OrderColumn(name = "location_index")
     private List<ExactLocation> route=new ArrayList<>();
+    // ordered list
+    // start location
+    // next location
+    
 
     @Temporal(value = TemporalType.DATE)
     private Date startTime;

@@ -2,6 +2,7 @@ package com.uber.uberapi.services;
 
 import com.uber.uberapi.models.Booking;
 import com.uber.uberapi.models.Driver;
+import com.uber.uberapi.models.Passenger;
 
 public interface BookingService {
 
@@ -11,7 +12,7 @@ public interface BookingService {
 
     void cancelByDriver(Driver driver, Booking booking);
 
-    void cancelByPassenger(Driver driver, Booking booking);
+    void cancelByPassenger(Passenger passenger, Booking booking);
 
 
 }
